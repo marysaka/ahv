@@ -11,7 +11,7 @@ use alloc::vec::Vec;
 pub type Result<T> = core::result::Result<T, HypervisorError>;
 
 /// Represent an error returned by the Hypervisor.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum HypervisorError {
     /// A generic error was returned by the Hypervisor.
     Error,
@@ -483,5 +483,136 @@ impl Drop for VirtualMachine {
             // TODO: should we assert here on error? maybe only on debug?
             hv_vm_destroy();
         }
+    }
+}
+
+/// Cache type.
+#[derive(Copy, Clone, Debug)]
+pub enum CacheType {
+    /// Data cache.
+    Data,
+
+    /// Instruction cache.
+    Instruction
+}
+
+impl From<CacheType> for hv_cache_type_t {
+    fn from(value: CacheType) -> hv_cache_type_t {
+        match value {
+            CacheType::Data => HV_CACHE_TYPE_DATA,
+            CacheType::Instruction => HV_CACHE_TYPE_INSTRUCTION,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+#[allow(non_camel_case_types)]
+/// Feature register.
+pub enum FeatureRegister {
+    /// ID_AA64DFR0_EL1 register.
+    ID_AA64DFR0_EL1,
+
+    /// ID_AA64DFR1_EL1 register.
+    ID_AA64DFR1_EL1,
+
+    /// ID_AA64ISAR0_EL1 register.
+    ID_AA64ISAR0_EL1,
+
+    /// ID_AA64ISAR1_EL1 register.
+    ID_AA64ISAR1_EL1,
+
+    /// ID_AA64MMFR0_EL1 register.
+    ID_AA64MMFR0_EL1,
+
+    /// ID_AA64MMFR1_EL1 register.
+    ID_AA64MMFR1_EL1,
+
+    /// ID_AA64MMFR2_EL1 register.
+    ID_AA64MMFR2_EL1,
+
+    /// ID_AA64PFR0_EL1 register.
+    ID_AA64PFR0_EL1,
+
+    /// ID_AA64PFR1_EL1 register.
+    ID_AA64PFR1_EL1,
+
+    /// CTR_EL0 register.
+    CTR_EL0,
+
+    /// CLIDR_EL1 register.
+    CLIDR_EL1,
+
+    /// DCZID_EL0 register.
+    DCZID_EL0
+}
+
+impl From<FeatureRegister> for hv_feature_reg_t {
+    fn from(value: FeatureRegister) -> hv_feature_reg_t {
+        match value {
+            FeatureRegister::ID_AA64DFR0_EL1 => HV_FEATURE_REG_ID_AA64DFR0_EL1,
+            FeatureRegister::ID_AA64DFR1_EL1 => HV_FEATURE_REG_ID_AA64DFR1_EL1,
+            FeatureRegister::ID_AA64ISAR0_EL1 => HV_FEATURE_REG_ID_AA64ISAR0_EL1,
+            FeatureRegister::ID_AA64ISAR1_EL1 => HV_FEATURE_REG_ID_AA64ISAR1_EL1,
+            FeatureRegister::ID_AA64MMFR0_EL1 => HV_FEATURE_REG_ID_AA64MMFR0_EL1,
+            FeatureRegister::ID_AA64MMFR1_EL1 => HV_FEATURE_REG_ID_AA64MMFR1_EL1,
+            FeatureRegister::ID_AA64MMFR2_EL1 => HV_FEATURE_REG_ID_AA64MMFR2_EL1,
+            FeatureRegister::ID_AA64PFR0_EL1 => HV_FEATURE_REG_ID_AA64PFR0_EL1,
+            FeatureRegister::ID_AA64PFR1_EL1 => HV_FEATURE_REG_ID_AA64PFR1_EL1,
+            FeatureRegister::CTR_EL0 => HV_FEATURE_REG_CTR_EL0,
+            FeatureRegister::CLIDR_EL1 => HV_FEATURE_REG_CLIDR_EL1,
+            FeatureRegister::DCZID_EL0 => HV_FEATURE_REG_DCZID_EL0,
+        }
+    }
+}
+
+/// vCPU configuration for a Virtual Machine.
+#[derive(Debug)]
+pub struct VirtualCpuConfiguration {
+    /// Handle of the vCPU configuration.
+    handle: hv_vcpu_config_t
+}
+
+impl VirtualCpuConfiguration {
+    /// Create a new vCPU configuration.
+    pub fn new() -> Self {
+        VirtualCpuConfiguration {
+            handle: unsafe {
+                hv_vcpu_config_create()
+            }
+        }
+    }
+
+    /// Return value of a feature register.
+    pub fn get_feature_register(&self, feature_register: FeatureRegister) -> Result<u64> {
+        let mut result = 0;
+
+        let ret = unsafe {
+            hv_vcpu_config_get_ccsidr_el1_sys_reg_values(self.handle, hv_feature_reg_t::from(feature_register), &mut result as *mut u64)
+        };
+
+        // Ensure no error got reported
+        convert_hv_return(ret)?;
+
+        Ok(result)
+    }
+
+    /// Return values of CCSIDR_EL1 for a given cache type.
+    pub fn get_ccsidr_el1_sys_register_values(&self, cache_type: CacheType) -> Result<[u64; 8]> {
+        let mut result = [0x0; 8];
+
+        let ret = unsafe {
+            hv_vcpu_config_get_ccsidr_el1_sys_reg_values(self.handle, hv_cache_type_t::from(cache_type), &mut result[0] as *mut u64)
+        };
+
+        // Ensure no error got reported
+        convert_hv_return(ret)?;
+
+        Ok(result)
+    }
+}
+
+impl Drop for VirtualCpuConfiguration {
+    fn drop(&mut self) {
+        // TODO: use os_release on the handle.
     }
 }

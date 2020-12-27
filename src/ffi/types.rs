@@ -677,31 +677,31 @@ pub const HV_MEMORY_WRITE: hv_memory_flags_t = 1 << 1;
 /// Execute memory permission.
 pub const HV_MEMORY_EXEC: hv_memory_flags_t = 1 << 2;
 
-/// The value that identifies feature register AA64DFR0_EL1.
+/// The value that identifies feature register ID_AA64DFR0_EL1.
 pub const HV_FEATURE_REG_ID_AA64DFR0_EL1: hv_feature_reg_t = 0;
 
-/// The value that identifies feature register AA64DFR1_EL1.
+/// The value that identifies feature register ID_AA64DFR1_EL1.
 pub const HV_FEATURE_REG_ID_AA64DFR1_EL1: hv_feature_reg_t = 1;
 
-/// The value that identifies feature register AA64ISAR0_EL1.
+/// The value that identifies feature register ID_AA64ISAR0_EL1.
 pub const HV_FEATURE_REG_ID_AA64ISAR0_EL1: hv_feature_reg_t = 2;
 
-/// The value that identifies feature register AA64ISAR1_EL1.
+/// The value that identifies feature register ID_AA64ISAR1_EL1.
 pub const HV_FEATURE_REG_ID_AA64ISAR1_EL1: hv_feature_reg_t = 3;
 
-/// The value that identifies feature register AA64MMFR0_EL1.
+/// The value that identifies feature register ID_AA64MMFR0_EL1.
 pub const HV_FEATURE_REG_ID_AA64MMFR0_EL1: hv_feature_reg_t = 4;
 
-/// The value that identifies feature register AA64MMFR1_EL1.
+/// The value that identifies feature register ID_AA64MMFR1_EL1.
 pub const HV_FEATURE_REG_ID_AA64MMFR1_EL1: hv_feature_reg_t = 5;
 
-/// The value that identifies feature register AA64MMFR2_EL1.
+/// The value that identifies feature register ID_AA64MMFR2_EL1.
 pub const HV_FEATURE_REG_ID_AA64MMFR2_EL1: hv_feature_reg_t = 6;
 
-/// The value that identifies feature register AA64PFR0_EL1.
+/// The value that identifies feature register ID_AA64PFR0_EL1.
 pub const HV_FEATURE_REG_ID_AA64PFR0_EL1: hv_feature_reg_t = 7;
 
-/// The value that identifies feature register AA64PFR1_EL1.
+/// The value that identifies feature register ID_AA64PFR1_EL1.
 pub const HV_FEATURE_REG_ID_AA64PFR1_EL1: hv_feature_reg_t = 8;
 
 /// The value that identifies feature register CTR_EL0.
