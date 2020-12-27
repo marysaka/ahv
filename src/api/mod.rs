@@ -507,12 +507,13 @@ impl VirtualMachine {
 
 impl Drop for VirtualMachine {
     fn drop(&mut self) {
-        unsafe {
-            // TODO: ummap everything
+        // TODO: ummap everything
 
-            // TODO: should we assert here on error? maybe only on debug?
-            hv_vm_destroy();
-        }
+        let ret = unsafe {
+            hv_vm_destroy()
+        };
+
+        convert_hv_return(ret).expect("Cannot destroy VM on drop!");
     }
 }
 
