@@ -54,7 +54,7 @@ extern "C" {
     /// Creates a vCPU instance for the current thread.
     pub fn hv_vcpu_create(
         vcpu: *mut hv_vcpu_t,
-        exit: *mut *mut hv_vcpu_exit_t,
+        exit: *mut *const hv_vcpu_exit_t,
         config: *const hv_vcpu_config_t,
     ) -> hv_return_t;
 
@@ -67,6 +67,7 @@ extern "C" {
     /// Sets the value of a vCPU register.
     pub fn hv_vcpu_set_reg(vcpu: hv_vcpu_t, reg: hv_reg_t, value: u64) -> hv_return_t;
 
+    // TODO: SIMD APIs
     //pub fn hv_vcpu_get_simd_fp_reg(vcpu: hv_vcpu_t, reg: hv_simd_fp_reg_t, value: *mut hv_simd_fp_uchar16_t) -> hv_return_t;
     //pub fn hv_vcpu_set_simd_fp_reg(vcpu: hv_vcpu_t, reg: hv_simd_fp_reg_t, value: hv_simd_fp_uchar16_t) -> hv_return_t;
 
@@ -108,7 +109,7 @@ extern "C" {
     /// Forces an immediate exit of a set of vCPUs of the VM.
     pub fn hv_vcpus_exit(vcpus: *const hv_vcpu_t, vcpu_count: u32) -> hv_return_t;
 
-    /// Returns, the cumulative execution time of a vCPU in nanoseconds.
+    /// Returns, the cumulative execution time of a vCPU in mach_absolute_time().
     pub fn hv_vcpu_get_exec_time(vcpu: hv_vcpu_t, time: *mut u64) -> hv_return_t;
 
     /// Gets the virtual timer mask.

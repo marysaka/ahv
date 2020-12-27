@@ -1,5 +1,5 @@
 // TODO: Currently, the SIMD types doesn't seem to support interoperability with C, find a way to bypass that.
-//#![feature(stdsimd, simd_ffi)]
+#![feature(negative_impls/*, stdsimd, simd_ffi) */)]
 #![deny(clippy::missing_docs_in_private_items)]
 #![no_std]
 
@@ -14,7 +14,6 @@ extern crate alloc;
 pub mod api;
 pub mod ffi;
 
-pub use api::{
-    AllocationHandle, MappingHandle, MemoryPermission, Result, VirtualMachine,
-    VirtualMachineConfiguration, VirtualMachineMapping,
-};
+pub use ffi::types::hv_ipa_t;
+pub use ffi::types::hv_vcpu_t;
+pub use api::*;
