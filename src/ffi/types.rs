@@ -2,7 +2,7 @@
 
 #![allow(non_camel_case_types)]
 
-use std::ffi::c_void;
+use core::ffi::c_void;
 
 /// vCPU configuration.
 pub type hv_vcpu_config_t = *mut c_void;
@@ -53,8 +53,7 @@ pub type hv_feature_reg_t = u32;
 
 /// Contains details of a vCPU exception.
 #[repr(C)]
-pub struct hv_vcpu_exit_exception_t
-{
+pub struct hv_vcpu_exit_exception_t {
     /// The vCPU exception syndrome (Corresponds to ESR_EL2).
     pub syndrome: hv_exception_syndrome_t,
 
@@ -62,18 +61,17 @@ pub struct hv_vcpu_exit_exception_t
     pub virtual_address: hv_exception_address_t,
 
     /// The vCPU exception physical address (host address).
-    pub physical_address: hv_ipa_t
+    pub physical_address: hv_ipa_t,
 }
 
 /// Information about an exit from the vCPU to the host.
 #[repr(C)]
-pub struct hv_vcpu_exit_t
-{
+pub struct hv_vcpu_exit_t {
     /// The exit reason.
     pub reason: hv_exit_reason_t,
 
     /// The exit exception informations.
-    pub exception: hv_vcpu_exit_exception_t
+    pub exception: hv_vcpu_exit_exception_t,
 }
 
 /// The value that identifies exits requested by exit handler on the host.
@@ -294,7 +292,6 @@ pub const HV_SIMD_FP_REG_Q30: hv_simd_fp_reg_t = 30;
 
 /// The value that identifies register Q31.
 pub const HV_SIMD_FP_REG_Q31: hv_simd_fp_reg_t = 31;
-
 
 /// The value that identifies register DBGBVR0_EL1.
 pub const HV_SYS_REG_DBGBVR0_EL1: hv_sys_reg_t = 0x8004;

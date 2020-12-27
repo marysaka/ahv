@@ -1,6 +1,6 @@
 # ahv
 
-Allows interaction with the Hypervisor Framework on Apple Silicon in a safe (still TODO) and unsafe way. 
+Allows interaction with the Hypervisor Framework on Apple Silicon in a safe (still WIP) and unsafe way. 
 
 ## License
 
