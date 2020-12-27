@@ -471,13 +471,16 @@ impl VirtualMachine {
     }
 
     /// Create a new vCPU.
-    /// 
+    ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
-    pub fn create_vcpu(&mut self, config: Option<&mut VirtualCpuConfiguration>) -> Result<VirtualCpu> {
+    pub fn create_vcpu(
+        &mut self,
+        config: Option<&mut VirtualCpuConfiguration>,
+    ) -> Result<VirtualCpu> {
         let handle: hv_vcpu_config_t = config
             .map(|value| value.handle)
             .unwrap_or(core::ptr::null_mut());
-        
+
         let mut vcpu_handle: hv_vcpu_t = 0;
         let mut vcpu_exit: *const hv_vcpu_exit_t = core::ptr::null_mut();
 
@@ -491,9 +494,7 @@ impl VirtualMachine {
 
     /// Exits given vCPUs.
     pub fn exit_vcpus(&mut self, vcpus: &[hv_vcpu_t]) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpus_exit(vcpus.as_ptr(), vcpus.len() as u32)
-        };
+        let ret = unsafe { hv_vcpus_exit(vcpus.as_ptr(), vcpus.len() as u32) };
 
         convert_hv_return(ret)
     }
@@ -512,14 +513,12 @@ impl VirtualMachine {
 
 impl Drop for VirtualMachine {
     fn drop(&mut self) {
-
         for mapping in self.get_all_mapping_infos() {
-            self.unmap(mapping.mapping_handle).expect("Cannot unmap memory on VM drop!");
+            self.unmap(mapping.mapping_handle)
+                .expect("Cannot unmap memory on VM drop!");
         }
 
-        let ret = unsafe {
-            hv_vm_destroy()
-        };
+        let ret = unsafe { hv_vm_destroy() };
 
         convert_hv_return(ret).expect("Cannot destroy VM on drop!");
     }
@@ -532,7 +531,7 @@ pub enum CacheType {
     Data,
 
     /// Instruction cache.
-    Instruction
+    Instruction,
 }
 
 impl From<CacheType> for hv_cache_type_t {
@@ -582,7 +581,7 @@ pub enum FeatureRegister {
     CLIDR_EL1,
 
     /// DCZID_EL0 register.
-    DCZID_EL0
+    DCZID_EL0,
 }
 
 impl From<FeatureRegister> for hv_feature_reg_t {
@@ -608,16 +607,14 @@ impl From<FeatureRegister> for hv_feature_reg_t {
 #[derive(Debug)]
 pub struct VirtualCpuConfiguration {
     /// Handle of the vCPU configuration.
-    handle: hv_vcpu_config_t
+    handle: hv_vcpu_config_t,
 }
 
 impl VirtualCpuConfiguration {
     /// Create a new vCPU configuration.
     fn new() -> Self {
         VirtualCpuConfiguration {
-            handle: unsafe {
-                hv_vcpu_config_create()
-            }
+            handle: unsafe { hv_vcpu_config_create() },
         }
     }
 
@@ -626,7 +623,11 @@ impl VirtualCpuConfiguration {
         let mut result = 0;
 
         let ret = unsafe {
-            hv_vcpu_config_get_feature_reg(self.handle, hv_feature_reg_t::from(feature_register), &mut result as *mut u64)
+            hv_vcpu_config_get_feature_reg(
+                self.handle,
+                hv_feature_reg_t::from(feature_register),
+                &mut result as *mut u64,
+            )
         };
 
         // Ensure no error got reported
@@ -640,7 +641,11 @@ impl VirtualCpuConfiguration {
         let mut result = [0x0; 8];
 
         let ret = unsafe {
-            hv_vcpu_config_get_ccsidr_el1_sys_reg_values(self.handle, hv_cache_type_t::from(cache_type), &mut result[0] as *mut u64)
+            hv_vcpu_config_get_ccsidr_el1_sys_reg_values(
+                self.handle,
+                hv_cache_type_t::from(cache_type),
+                &mut result[0] as *mut u64,
+            )
         };
 
         // Ensure no error got reported
@@ -1276,8 +1281,8 @@ impl From<SystemRegister> for hv_sys_reg_t {
             SystemRegister::TPIDR_EL0 => HV_SYS_REG_TPIDR_EL0,
             SystemRegister::TPIDRRO_EL0 => HV_SYS_REG_TPIDRRO_EL0,
             SystemRegister::CNTV_CTL_EL0 => HV_SYS_REG_CNTV_CTL_EL0,
-            SystemRegister::CNTV_CVAL_EL0 => HV_SYS_REG_CNTV_CVAL_EL0,            
-            SystemRegister::SP_EL1 => HV_SYS_REG_SP_EL1,            
+            SystemRegister::CNTV_CVAL_EL0 => HV_SYS_REG_CNTV_CVAL_EL0,
+            SystemRegister::SP_EL1 => HV_SYS_REG_SP_EL1,
         }
     }
 }
@@ -1310,7 +1315,7 @@ pub enum VirtualCpuExitReason {
     /// Guest exception.
     Exception {
         /// The informations about the guest exception.
-        exception: hv_vcpu_exit_exception_t
+        exception: hv_vcpu_exit_exception_t,
     },
 
     /// Virtual Timer enters the pending state.
@@ -1325,13 +1330,13 @@ impl From<hv_vcpu_exit_t> for VirtualCpuExitReason {
         match value.reason {
             HV_EXIT_REASON_CANCELED => VirtualCpuExitReason::Cancelled,
             HV_EXIT_REASON_EXCEPTION => VirtualCpuExitReason::Exception {
-                exception: value.exception
+                exception: value.exception,
             },
             HV_EXIT_REASON_VTIMER_ACTIVATED => VirtualCpuExitReason::VTimerActivated,
             HV_EXIT_REASON_UNKNOWN => VirtualCpuExitReason::Unknown,
 
             // Unexpected unknown
-            _ => VirtualCpuExitReason::Unknown
+            _ => VirtualCpuExitReason::Unknown,
         }
     }
 }
@@ -1351,19 +1356,15 @@ impl !Send for VirtualCpu {}
 
 impl Drop for VirtualCpu {
     fn drop(&mut self) {
-
         self.exit().expect("Cannot exit vCPU on drop!");
 
-        let ret = unsafe {
-            hv_vcpu_destroy(self.handle)
-        };
+        let ret = unsafe { hv_vcpu_destroy(self.handle) };
 
         convert_hv_return(ret).expect("Cannot destroy vCPU on drop!")
     }
 }
 
 impl VirtualCpu {
-
     /// Gets vCPU handle.
     pub fn get_handle(&self) -> hv_vcpu_t {
         self.handle
@@ -1376,7 +1377,11 @@ impl VirtualCpu {
         let mut result = 0;
 
         let ret = unsafe {
-            hv_vcpu_get_reg(self.handle, hv_reg_t::from(register), &mut result as *mut u64)
+            hv_vcpu_get_reg(
+                self.handle,
+                hv_reg_t::from(register),
+                &mut result as *mut u64,
+            )
         };
 
         // Ensure no error got reported
@@ -1389,9 +1394,7 @@ impl VirtualCpu {
     ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     pub fn set_register(&mut self, register: Register, value: u64) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpu_set_reg(self.handle, hv_reg_t::from(register), value)
-        };
+        let ret = unsafe { hv_vcpu_set_reg(self.handle, hv_reg_t::from(register), value) };
 
         convert_hv_return(ret)
     }
@@ -1405,7 +1408,11 @@ impl VirtualCpu {
         let mut result = 0;
 
         let ret = unsafe {
-            hv_vcpu_get_sys_reg(self.handle, hv_sys_reg_t::from(register), &mut result as *mut u64)
+            hv_vcpu_get_sys_reg(
+                self.handle,
+                hv_sys_reg_t::from(register),
+                &mut result as *mut u64,
+            )
         };
 
         // Ensure no error got reported
@@ -1418,9 +1425,7 @@ impl VirtualCpu {
     ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     pub fn set_system_register(&mut self, register: SystemRegister, value: u64) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpu_set_sys_reg(self.handle, hv_sys_reg_t::from(register), value)
-        };
+        let ret = unsafe { hv_vcpu_set_sys_reg(self.handle, hv_sys_reg_t::from(register), value) };
 
         convert_hv_return(ret)
     }
@@ -1430,9 +1435,13 @@ impl VirtualCpu {
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     pub fn get_pending_interrupt(&mut self, interrupt_type: InterruptType) -> Result<bool> {
         let mut result = false;
-        
+
         let ret = unsafe {
-            hv_vcpu_get_pending_interrupt(self.handle, hv_interrupt_type_t::from(interrupt_type), &mut result)
+            hv_vcpu_get_pending_interrupt(
+                self.handle,
+                hv_interrupt_type_t::from(interrupt_type),
+                &mut result,
+            )
         };
 
         convert_hv_return(ret)?;
@@ -1444,9 +1453,17 @@ impl VirtualCpu {
     ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     /// **Pending interrupts automatically get cleared after vCPU run and must be resetup before every call to run.**
-    pub fn set_pending_interrupt(&mut self, interrupt_type: InterruptType, value: bool) -> Result<()> {
+    pub fn set_pending_interrupt(
+        &mut self,
+        interrupt_type: InterruptType,
+        value: bool,
+    ) -> Result<()> {
         let ret = unsafe {
-            hv_vcpu_set_pending_interrupt(self.handle, hv_interrupt_type_t::from(interrupt_type), value)
+            hv_vcpu_set_pending_interrupt(
+                self.handle,
+                hv_interrupt_type_t::from(interrupt_type),
+                value,
+            )
         };
 
         convert_hv_return(ret)
@@ -1458,9 +1475,7 @@ impl VirtualCpu {
     pub fn get_trap_debug_exceptions(&mut self) -> Result<bool> {
         let mut result = false;
 
-        let ret = unsafe {
-            hv_vcpu_get_trap_debug_exceptions(self.handle, &mut result)
-        };
+        let ret = unsafe { hv_vcpu_get_trap_debug_exceptions(self.handle, &mut result) };
 
         convert_hv_return(ret)?;
 
@@ -1471,9 +1486,7 @@ impl VirtualCpu {
     ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     pub fn set_trap_debug_exceptions(&mut self, value: bool) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpu_set_trap_debug_exceptions(self.handle, value)
-        };
+        let ret = unsafe { hv_vcpu_set_trap_debug_exceptions(self.handle, value) };
 
         convert_hv_return(ret)
     }
@@ -1484,9 +1497,7 @@ impl VirtualCpu {
     pub fn get_trap_debug_reg_accesses(&mut self) -> Result<bool> {
         let mut result = false;
 
-        let ret = unsafe {
-            hv_vcpu_get_trap_debug_reg_accesses(self.handle, &mut result)
-        };
+        let ret = unsafe { hv_vcpu_get_trap_debug_reg_accesses(self.handle, &mut result) };
 
         convert_hv_return(ret)?;
 
@@ -1497,9 +1508,7 @@ impl VirtualCpu {
     ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     pub fn set_trap_debug_reg_accesses(&mut self, value: bool) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpu_set_trap_debug_reg_accesses(self.handle, value)
-        };
+        let ret = unsafe { hv_vcpu_set_trap_debug_reg_accesses(self.handle, value) };
 
         convert_hv_return(ret)
     }
@@ -1508,25 +1517,16 @@ impl VirtualCpu {
     ///
     /// **This should be called in the thread that will run the vCPU as it's resident inside it.**
     pub fn run(&mut self) -> Result<VirtualCpuExitReason> {
-        let ret = unsafe {
-            hv_vcpu_run(self.handle)
-        };
+        let ret = unsafe { hv_vcpu_run(self.handle) };
 
         convert_hv_return(ret)?;
 
-
-        Ok(VirtualCpuExitReason::from(
-            unsafe {
-                *self.vcpu_exit
-            }
-        ))
+        Ok(VirtualCpuExitReason::from(unsafe { *self.vcpu_exit }))
     }
 
     /// Forces exit the vCPU.
     pub fn exit(&mut self) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpus_exit(&self.handle, 1)
-        };
+        let ret = unsafe { hv_vcpus_exit(&self.handle, 1) };
 
         convert_hv_return(ret)
     }
@@ -1537,9 +1537,7 @@ impl VirtualCpu {
     pub fn get_exec_time(&mut self) -> Result<u64> {
         let mut result = 0;
 
-        let ret = unsafe {
-            hv_vcpu_get_exec_time(self.handle, &mut result)
-        };
+        let ret = unsafe { hv_vcpu_get_exec_time(self.handle, &mut result) };
 
         convert_hv_return(ret)?;
 
@@ -1550,9 +1548,7 @@ impl VirtualCpu {
     pub fn get_vtimer_mask(&mut self) -> Result<bool> {
         let mut result = false;
 
-        let ret = unsafe {
-            hv_vcpu_get_vtimer_mask(self.handle, &mut result)
-        };
+        let ret = unsafe { hv_vcpu_get_vtimer_mask(self.handle, &mut result) };
 
         convert_hv_return(ret)?;
 
@@ -1561,9 +1557,7 @@ impl VirtualCpu {
 
     /// Sets Virtual Timer mask.
     pub fn set_vtimer_mask(&mut self, value: bool) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpu_set_vtimer_mask(self.handle, value)
-        };
+        let ret = unsafe { hv_vcpu_set_vtimer_mask(self.handle, value) };
 
         convert_hv_return(ret)
     }
@@ -1572,9 +1566,7 @@ impl VirtualCpu {
     pub fn get_vtimer_offset(&mut self) -> Result<u64> {
         let mut result = 0;
 
-        let ret = unsafe {
-            hv_vcpu_get_vtimer_offset(self.handle, &mut result)
-        };
+        let ret = unsafe { hv_vcpu_get_vtimer_offset(self.handle, &mut result) };
 
         convert_hv_return(ret)?;
 
@@ -1583,9 +1575,7 @@ impl VirtualCpu {
 
     /// Sets Virtual Timer offset (CNTVOFF_EL2).
     pub fn set_vtimer_offset(&mut self, value: u64) -> Result<()> {
-        let ret = unsafe {
-            hv_vcpu_set_vtimer_offset(self.handle, value)
-        };
+        let ret = unsafe { hv_vcpu_set_vtimer_offset(self.handle, value) };
 
         convert_hv_return(ret)
     }

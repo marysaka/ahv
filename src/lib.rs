@@ -14,6 +14,6 @@ extern crate alloc;
 pub mod api;
 pub mod ffi;
 
+pub use api::*;
 pub use ffi::types::hv_ipa_t;
 pub use ffi::types::hv_vcpu_t;
-pub use api::*;
