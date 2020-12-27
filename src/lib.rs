@@ -9,6 +9,9 @@
 //! This crate allows interaction with the Hypervisor Framework on Apple Silicon in a safe (``ahv`` module) and unsafe (``ffi`` module) way.
 //!
 //! # Example:
+//!
+//! The following example execute a move of the immediate value 2 to register x0 at EL1 and then call HVC 0.
+//!
 //! ```
 //! use ahv::*;
 //!
@@ -60,6 +63,9 @@
 //!
 //!     Ok(())
 //! }
+//!
+//! **To run this example make sure to give the built binary the ``com.apple.security.hypervisor`` entitlement.**
+//!
 //! ```
 
 extern crate alloc;

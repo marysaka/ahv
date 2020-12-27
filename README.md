@@ -1,10 +1,10 @@
 # ahv
 
-Allows interaction with the Hypervisor Framework on Apple Silicon in a safe (still WIP) and unsafe way. 
+Allows interaction with the Hypervisor Framework on Apple Silicon in a safe and unsafe way. 
 
 ## Usage
 
-To use `ahv`, add this to your `Cargo.toml`:
+To use `ahv`, **you must be in nightly** and add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -12,6 +12,8 @@ ahv = "0.1.0"
 ```
 
 ## Example
+
+The following example execute a move of the immediate value 2 to register x0 at EL1 and then call HVC 0.
 
 ```rust
 use ahv::*;
@@ -65,6 +67,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 ```
+
+**To run this example make sure to give the built binary the ``com.apple.security.hypervisor`` entitlement.**
 
 ## License
 
