@@ -503,11 +503,19 @@ impl VirtualMachine {
         self.find_mapping_by_handle(mapping_handle)
             .map(|(_, value)| *value)
     }
+
+    /// Get a list of all mapping informations.
+    pub fn get_all_mapping_infos(&self) -> Vec<VirtualMachineMapping> {
+        self.mapping_list.clone()
+    }
 }
 
 impl Drop for VirtualMachine {
     fn drop(&mut self) {
-        // TODO: ummap everything
+
+        for mapping in self.get_all_mapping_infos() {
+            self.unmap(mapping.mapping_handle).expect("Cannot unmap memory on VM drop!");
+        }
 
         let ret = unsafe {
             hv_vm_destroy()
