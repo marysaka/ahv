@@ -644,9 +644,15 @@ impl VirtualCpuConfiguration {
     }
 }
 
+extern "C" {
+    fn os_release(object: *mut c_void);
+}
+
 impl Drop for VirtualCpuConfiguration {
     fn drop(&mut self) {
-        // TODO: use os_release on the handle.
+        unsafe {
+            os_release(self.handle);
+        }
     }
 }
 
