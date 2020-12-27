@@ -175,11 +175,11 @@ pub struct VirtualMachineMapping {
 }
 
 /// Represent an handle to an allocation.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct AllocationHandle(pub u64);
 
 /// Represent an handle to a mapping.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct MappingHandle(pub u64);
 
 /// An utility to manipulate counters.
@@ -310,8 +310,7 @@ impl VirtualMachine {
         handle: AllocationHandle,
     ) -> Result<(usize, &VirtualMachineAllocation)> {
         for (index, entry) in self.allocation_list.iter().enumerate() {
-            // TODO: PartialEq on AllocationHandle.
-            if entry.handle.0 == handle.0 {
+            if entry.handle == handle {
                 return Ok((index, entry));
             }
         }
@@ -325,8 +324,7 @@ impl VirtualMachine {
         handle: MappingHandle,
     ) -> Result<(usize, &VirtualMachineMapping)> {
         for (index, entry) in self.mapping_list.iter().enumerate() {
-            // TODO: PartialEq on MappingHandle.
-            if entry.mapping_handle.0 == handle.0 {
+            if entry.mapping_handle == handle {
                 return Ok((index, entry));
             }
         }
@@ -337,8 +335,7 @@ impl VirtualMachine {
     /// Check if the given allocation handle is mapped.
     fn is_allocation_mapped(&self, handle: AllocationHandle) -> bool {
         for (_, entry) in self.mapping_list.iter().enumerate() {
-            // TODO: PartialEq on MappingHandle.
-            if entry.allocation_handle.0 == handle.0 {
+            if entry.allocation_handle == handle {
                 return true;
             }
         }
