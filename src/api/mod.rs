@@ -587,7 +587,7 @@ impl VirtualCpuConfiguration {
         let mut result = 0;
 
         let ret = unsafe {
-            hv_vcpu_config_get_ccsidr_el1_sys_reg_values(self.handle, hv_feature_reg_t::from(feature_register), &mut result as *mut u64)
+            hv_vcpu_config_get_feature_reg(self.handle, hv_feature_reg_t::from(feature_register), &mut result as *mut u64)
         };
 
         // Ensure no error got reported
