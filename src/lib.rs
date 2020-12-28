@@ -1,5 +1,5 @@
 // TODO: Currently, the SIMD types doesn't seem to support interoperability with C, find a way to bypass that.
-#![feature(negative_impls/*, stdsimd, simd_ffi) */)]
+/*#![feature(, stdsimd, simd_ffi))]*/
 #![deny(clippy::missing_docs_in_private_items)]
 #![no_std]
 

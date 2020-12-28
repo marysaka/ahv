@@ -4,7 +4,7 @@ Allows interaction with the Hypervisor Framework on Apple Silicon in a safe and 
 
 ## Usage
 
-To use `ahv`, **you must be in nightly** and add this to your `Cargo.toml`:
+To use `ahv`, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]

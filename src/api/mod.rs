@@ -3,6 +3,7 @@ use crate::ffi::types::*;
 use crate::ffi::*;
 
 use core::ffi::c_void;
+use core::marker::PhantomData;
 
 use alloc::alloc::Layout;
 use alloc::vec::Vec;
@@ -487,6 +488,7 @@ impl VirtualMachine {
         let ret = unsafe { hv_vcpu_create(&mut vcpu_handle, &mut vcpu_exit, &handle) };
 
         convert_hv_return(ret).map(|_| VirtualCpu {
+            _not_send_marker: PhantomData,
             handle: vcpu_handle,
             vcpu_exit,
         })
@@ -1344,15 +1346,15 @@ impl From<hv_vcpu_exit_t> for VirtualCpuExitReason {
 /// vCPU for a Virtual Machine.
 #[derive(Debug)]
 pub struct VirtualCpu {
+    /// A vCPU is resident to a specific thread. Therefore, it shouldn't be Send.
+    _not_send_marker: PhantomData<*const u8>,
+
     /// Handle of the vCPU configuration.
     handle: hv_vcpu_t,
 
     /// vCPU exit informations.
     vcpu_exit: *const hv_vcpu_exit_t,
 }
-
-/// A vCPU is resident to a specific thread. Therefore, it shouldn't be Send.
-impl !Send for VirtualCpu {}
 
 impl Drop for VirtualCpu {
     fn drop(&mut self) {
