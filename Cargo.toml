@@ -1,6 +1,6 @@
 [package]
 name = "ahv"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mary <me@thog.eu>"]
 license = "Apache-2.0 OR MIT"
 repository = "https://www.github.com/Thog/ahv.git"
@@ -11,5 +11,9 @@ categories = ["api-bindings", "no-std", "os::macos-apis"]
 edition = "2018"
 
 build = "build.rs"
+
+exclude = [
+    ".github"
+]
 
 [dependencies]
