@@ -44,6 +44,9 @@ pub enum HypervisorError {
     /// The given allocation handle is still mapped.
     AllocationStillMapped,
 
+    /// A memory address was misaligned
+    MisalignedAddress,
+
     /// An unknown error was returned.
     Unknown(u32),
 }
@@ -395,6 +398,10 @@ impl VirtualMachine {
         let (_, allocation) = self.find_allocation_by_handle(allocation_handle)?;
 
         let allocation_size = allocation.layout.size();
+
+        if guest_address % PAGE_SIZE as u64 != 0 {
+            return Err(HypervisorError::MisalignedAddress);
+        }
 
         let ret = unsafe {
             hv_vm_map(
