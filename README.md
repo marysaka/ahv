@@ -8,7 +8,7 @@ To use `ahv`, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ahv = "0.1.0"
+ahv = "0.2.0"
 ```
 
 ## Example
