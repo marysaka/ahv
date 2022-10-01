@@ -6,6 +6,7 @@ pub mod types;
 
 use types::*;
 
+#[link(name = "Hypervisor", kind = "framework")]
 extern "C" {
 
     // VM APIs
