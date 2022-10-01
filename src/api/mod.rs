@@ -179,15 +179,15 @@ pub struct VirtualMachineMapping {
 }
 
 /// Represent an handle to an allocation.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct AllocationHandle(pub u64);
 
 /// Represent an handle to a mapping.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct MappingHandle(pub u64);
 
 /// An utility to manipulate counters.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Counter(u64);
 
 impl Counter {
@@ -196,12 +196,6 @@ impl Counter {
         self.0 += 1;
 
         self.0
-    }
-}
-
-impl Default for Counter {
-    fn default() -> Counter {
-        Counter(0)
     }
 }
 

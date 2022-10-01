@@ -1,14 +1,14 @@
 [package]
 name = "ahv"
 version = "0.1.1"
-authors = ["Mary <me@thog.eu>"]
+authors = ["Mary <mary@mary.zone>"]
 license = "Apache-2.0 OR MIT"
 repository = "https://www.github.com/Thog/ahv.git"
 homepage = "https://www.github.com/Thog/ahv"
 description = "Apple Hypervisor crate for Apple Silicon"
 keywords = ["hypervisor", "virtualization", "macOS", "apple", "aarch64"]
 categories = ["api-bindings", "no-std", "os::macos-apis"]
-edition = "2018"
+edition = "2021"
 
 build = "build.rs"
 
