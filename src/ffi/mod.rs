@@ -127,4 +127,43 @@ extern "C" {
 
     /// Sets the virtual timer offset.
     pub fn hv_vcpu_set_vtimer_offset(vcpu: hv_vcpu_t, vtimer_offset: u64) -> hv_return_t;
+
+    // VM allocate APIs (12.1+)
+
+    /// Allocate anonymous memory suitable to be mapped as guest memory. (**since macOS 12.1**)
+    #[cfg(feature = "macos_12_1_0")]
+    pub fn hv_vm_allocate(
+        uvap: *mut *const c_void,
+        size: usize,
+        flags: hv_allocate_flags_t,
+    ) -> hv_return_t;
+
+    /// Deallocate memory previously allocated by [hv_vm_allocate]. (**since macOS 12.1**)
+    #[cfg(feature = "macos_12_1_0")]
+    pub fn hv_vm_deallocate(uva: *mut c_void, size: usize) -> hv_return_t;
+
+    // VM configuration APIs (13.0+)
+
+    /// Creates a virtual machine configuration object. (**since macOS 13.0**)
+    #[cfg(feature = "macos_13_0_0")]
+    pub fn hv_vm_config_create() -> hv_vm_config_t;
+
+    /// Return the maximum intermediate physical address bit length. (**since macOS 13.0**)
+    #[cfg(feature = "macos_13_0_0")]
+    pub fn hv_vm_config_get_max_ipa_size(ipa_bit_length: *mut u32) -> hv_return_t;
+
+    /// Return the default intermediate physical address bit length. (**since macOS 13.0**)
+    #[cfg(feature = "macos_13_0_0")]
+    pub fn hv_vm_config_get_default_ipa_size(ipa_bit_length: *mut u32) -> hv_return_t;
+
+    /// Set intermediate physical address bit length in virtual machine configuration. (**since macOS 13.0**)
+    #[cfg(feature = "macos_13_0_0")]
+    pub fn hv_vm_config_set_ipa_size(config: hv_vm_config_t, ipa_bit_length: u32) -> hv_return_t;
+
+    /// Return intermediate physical address bit length in configuration. (**since macOS 13.0**)
+    #[cfg(feature = "macos_13_0_0")]
+    pub fn hv_vm_config_get_ipa_size(
+        config: hv_vm_config_t,
+        ipa_bit_length: *mut u32,
+    ) -> hv_return_t;
 }

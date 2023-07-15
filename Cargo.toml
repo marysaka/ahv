@@ -23,7 +23,10 @@ exclude = [
 default = []
 
 # Updated to the maximum version each time a new one is introduced
-max = []
+max = ["macos_13_0_0"]
+
+macos_13_0_0 = ["macos_12_1_0"]
+macos_12_1_0 = []
 
 [dependencies]
 

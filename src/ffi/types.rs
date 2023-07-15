@@ -51,6 +51,10 @@ pub type hv_return_t = u32;
 /// Type of ARM feature register.
 pub type hv_feature_reg_t = u32;
 
+/// Memory allocation flags. (**since macOS 12.1**)
+#[cfg(feature = "macos_12_1_0")]
+pub type hv_allocate_flags_t = u64;
+
 /// Contains details of a vCPU exception.
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
@@ -666,6 +670,9 @@ pub const HV_NO_DEVICE: hv_return_t = 0xfae94006;
 
 /// Denied.
 pub const HV_DENIED: hv_return_t = 0xfae94007;
+
+/// Fault.
+pub const HV_FAULT: hv_return_t = 0xfae94008;
 
 /// Unsupported.
 pub const HV_UNSUPPORTED: hv_return_t = 0xfae9400f;
