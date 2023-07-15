@@ -13,7 +13,7 @@
 //!
 //! The following example execute a move of the immediate value 2 to register x0 at EL1 and then call HVC 0.
 //!
-//! ```
+//! ```rust
 //! use ahv::*;
 //!
 //! fn main() -> Result<()> {
@@ -65,9 +65,9 @@
 //!     Ok(())
 //! }
 //!
-//! **To run this example make sure to give the built binary the ``com.apple.security.hypervisor`` entitlement.**
-//!
 //! ```
+//!
+//! **To run this example make sure to give the built binary the ``com.apple.security.hypervisor`` entitlement.**
 
 extern crate alloc;
 
