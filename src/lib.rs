@@ -1,5 +1,6 @@
 // TODO: Currently, the SIMD types doesn't seem to support interoperability with C, find a way to bypass that.
 /*#![feature(, stdsimd, simd_ffi))]*/
+#![cfg(all(target_os = "macos", target_arch = "aarch64"))]
 #![deny(clippy::missing_docs_in_private_items)]
 #![no_std]
 

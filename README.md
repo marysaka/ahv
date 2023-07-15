@@ -1,6 +1,6 @@
 # ahv
 
-Allows interaction with the Hypervisor Framework on Apple Silicon in a safe and unsafe way. 
+Bindings for Apple Silicon Hypervisor.
 
 ## Usage
 
@@ -69,6 +69,10 @@ fn main() -> Result<()> {
 ```
 
 **To run this example make sure to give the built binary the ``com.apple.security.hypervisor`` entitlement.**
+
+## MSRV
+
+Current MSRV is 1.65.0.
 
 ## License
 

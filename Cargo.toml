@@ -9,9 +9,24 @@ description = "Apple Hypervisor crate for Apple Silicon"
 keywords = ["hypervisor", "virtualization", "macOS", "apple", "aarch64"]
 categories = ["api-bindings", "no-std", "os::macos-apis"]
 edition = "2021"
+rust-version = "1.65"
 
 exclude = [
     ".github"
 ]
 
+[features]
+
+# The default feature activates nothing to ensure developers are aware of what
+# they use. This means this crate supports Hypervisor from macOS 11.0.0
+# by default.
+default = []
+
+# Updated to the maximum version each time a new one is introduced
+max = []
+
 [dependencies]
+
+[package.metadata.docs.rs]
+features = ["max"]
+targets = ["aarch64-apple-darwin"]

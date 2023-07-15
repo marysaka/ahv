@@ -457,7 +457,7 @@ impl VirtualMachine {
         // Ensure no error got reported
         convert_hv_return(ret)?;
 
-        let mut mapping = self
+        let mapping = self
             .mapping_list
             .get_mut(index)
             .expect("Mapping disapeared in between! (TOUTOC????)");

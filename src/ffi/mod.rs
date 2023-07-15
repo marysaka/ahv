@@ -11,6 +11,9 @@ extern "C" {
 
     // VM APIs
 
+    /// Return the maximum number of vcpus supported.
+    pub fn hv_vm_get_max_vcpu_count(max_vcpu_count: *mut u32) -> hv_return_t;
+
     /// Creates a VM instance for the current process.
     pub fn hv_vm_create(config: hv_vm_config_t) -> hv_return_t;
 

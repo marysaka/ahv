@@ -40,7 +40,7 @@ pub type hv_interrupt_type_t = u32;
 /// Cache type.
 pub type hv_cache_type_t = u32;
 
-//pub type hv_simd_fp_uchar16_t = core::arch::aarch64::uint8x16_t;
+pub type hv_simd_fp_uchar16_t = core::arch::aarch64::uint8x16_t;
 
 /// Memory region permissions.
 pub type hv_memory_flags_t = u64;
