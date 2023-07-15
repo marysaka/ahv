@@ -1,5 +1,9 @@
 name: Build
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ master ]
@@ -7,19 +11,217 @@ on:
     branches: [ master ]
 
 env:
+  CARGO_INCREMENTAL: 0
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-    runs-on: macos-11.0
+  clippy-version-features:
+    name: Clippy - feature ${{ matrix.feature }} (${{ matrix.version.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - { name: Stable, value: stable }
+        feature:
+          - macos_13_0_0
+          - macos_12_1_0
+          - default
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
-    - name: Build
-      run: cargo build --verbose
+      - name: checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.version.value }}
+          targets: aarch64-apple-darwin
+          components: clippy
+
+      - name: Cache cargo output
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.version.value }}-${{ matrix.feature }}
+
+      - name: Fetch dependencies
+        run: cargo +${{ matrix.version.value }} fetch --locked
+
+      - name: Clippy
+        run: |
+          cargo +${{ matrix.version.value }} \
+            clippy \
+            --verbose \
+            --locked \
+            --offline \
+            --all-targets \
+            --target aarch64-apple-darwin \
+            --features ${{ matrix.feature }}
+
+  clippy-all-features:
+    name: Clippy - all features (${{ matrix.version.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - { name: Stable, value: stable }
+
+    steps:
+      - name: checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.version.value }}
+          targets: aarch64-apple-darwin
+          components: clippy
+
+      - name: Cache cargo output
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.version.value }}-all_features
+
+      - name: Fetch dependencies
+        run: cargo +${{ matrix.version.value }} fetch --locked
+
+      - name: clippy
+        run: |
+          cargo +${{ matrix.version.value }} \
+            clippy \
+            --verbose \
+            --locked \
+            --offline \
+            --all-targets \
+            --target aarch64-apple-darwin \
+            --all-features
+
+  build-all-features:
+    name: Build - all features (${{ matrix.version.name }})
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        version:
+          - { name: MSRV, value: "1.65.0" }
+          - { name: Stable, value: stable }
+
+    steps:
+      - name: checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.version.value }}
+          targets: aarch64-apple-darwin
+
+      - name: Cache cargo output
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.version.value }}-all_features
+
+      - name: Fetch dependencies
+        run: cargo +${{ matrix.version.value }} fetch --locked
+
+      - name: Build
+        run: |
+          cargo +${{ matrix.version.value }} \
+            build \
+            --verbose \
+            --locked \
+            --offline \
+            --all-targets \
+            --target aarch64-apple-darwin \
+            --all-features
+
+  build-older-macos:
+    name: Build ${{ matrix.os.feature }} on macOS ${{ matrix.os.version }} (${{ matrix.version.name }})
+    runs-on: macos-${{ matrix.os.version }}
+    strategy:
+      matrix:
+        version:
+          # Only build older macOS on the MSRV, since that's the likely use case
+          - { name: MSRV, value: "1.65.0" }
+        os:
+          - { version: "11", feature: default }
+          - { version: "12", feature: macos_12_1_0 }
+          - { version: "13", feature: macos_13_0_0 }
+
+    steps:
+      - name: checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.version.value }}
+          targets: aarch64-apple-darwin
+
+      - name: Cache cargo output
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.version.value }}-${{ matrix.os.feature }}
+
+      - name: Fetch dependencies
+        run: cargo +${{ matrix.version.value }} fetch --locked
+
+      - name: Build
+        run: |
+          cargo +${{ matrix.version.value }} \
+            build \
+            --verbose \
+            --locked \
+            --offline \
+            --all-targets \
+            --target aarch64-apple-darwin \
+            --features ${{ matrix.os.feature }}
+
+  fmt:
+    name: Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  documentation:
+    name: Document - all features (${{ matrix.version.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - { name: Stable, value: stable }
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Cache cargo output
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.version.value }}-all_features
+
+      - name: Fetch dependencies
+        run: cargo +${{ matrix.version.value }} fetch --locked
+
+      - name: Document
+        run: |
+          cargo +${{ matrix.version.value }} \
+            doc \
+            --verbose \
+            --locked \
+            --offline \
+            --target aarch64-apple-darwin \
+            --all-features
