@@ -7,7 +7,7 @@
 //!
 //! Apple Hypervisor
 //!
-//! This crate allows interaction with the Hypervisor Framework on Apple Silicon in a safe (``ahv`` module) and unsafe (``ffi`` module) way.
+//! Bindings for Apple Silicon Hypervisor.
 //!
 //! # Example:
 //!
